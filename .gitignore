@@ -1,0 +1,17 @@
+.repos/*
+!.repos/README.md
+.serena/*
+
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
+
+*.pyc
+*.pyo
+*.pyd
+*.tmp
+
+.parselfire/

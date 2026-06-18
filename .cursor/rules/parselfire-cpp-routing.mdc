@@ -1,0 +1,17 @@
+---
+description: Activate ParselFire C++ pack index
+globs: **/*.{cc,cpp,cxx,hh,hpp,hxx,ipp,tpp,inl}
+alwaysApply: false
+---
+
+# C++ Pack Activation
+
+For C++ source files:
+
+- Load `packs/cpp-architecture/pack.urf.md`.
+- Use its `## ROUTING` and `## LEAVES` records for leaf selection.
+
+For ambiguous `.h` or `.c` files that reach this rule via the always-on router:
+
+- Apply cpp-architecture only if the file contains C++ constructs (class, template, namespace, references, std::, noexcept, overloads).
+- If the file is plain C, stay on universal only.

@@ -1,0 +1,207 @@
+# Kernel Schema
+
+ParselFire stores architectural guidance as a universal stage index plus thin family routers and leaf packs. `packs/universal/pack.urf.md` carries the shared S00-S06 stage model. Family indexes carry compact routing records. Leaf packs hold the actual K/X records that the agent selects from at runtime.
+
+## Surface Types
+
+Each pack family directory uses this shape:
+
+```text
+packs/
+  universal/
+    pack.urf.md          # shared stage + routing index
+    foundations.urf.md   # leaf pack
+    lifecycle.urf.md     # leaf pack
+```
+
+### Family index (`pack.urf.md`)
+
+A family index is the runtime entry surface for one pack family. It should stay small and contains compact routing records rather than prose hints.
+
+- `packs/universal/pack.urf.md` contains `## STAGES`, `## ROUTING`, and `## LEAVES`
+- other family indexes contain `## ROUTING` and `## LEAVES`
+- a family index may omit `## KERNELS` and `## EXCLUDES` when it is purely a router surface
+
+### Leaf pack (`*.urf.md` other than `pack.urf.md`)
+
+A leaf pack contains the actual guidance records. Leaf packs use:
+
+- `## KERNELS` for positive guidance
+- `## EXCLUDES` for mirrored violations
+
+## Record Shape
+
+Kernel and exclusion entries are single logical lines of pipe-separated fields:
+
+```text
+UNI-K01|stage=0|scope=build-ladder|kernel=before writing code walk the build ladder: not-needed > stdlib > platform > dependency > one-liner > minimum new code
+CPP-X22|stage=3|scope=deferred-guard-arm|violation=do not create an empty RAII owner and arm it only after later work can throw or allocate
+```
+
+Each line contains:
+
+- a leading id token: namespaced stable alias for compact reference and K/X pairing
+- `stage`: integer stage in the `0..6` range
+- `scope`: short kebab-case retrieval label
+- `kernel` or `violation`: the guidance text itself
+
+The section heading (`## KERNELS` or `## EXCLUDES`) still determines the entry kind. The leading id token is the compact alias; `scope` remains the primary semantic retrieval key.
+
+## Required Fields
+
+### Kernel entries (under `## KERNELS`)
+
+- leading id token
+- `stage`
+- `scope`
+- `kernel`
+
+### Exclusion entries (under `## EXCLUDES`)
+
+- leading id token
+- `stage`
+- `scope`
+- `violation`
+
+### `S` entries (under `## STAGES`)
+
+Stage definitions are metadata lines used to document the decision pipeline:
+
+```text
+S00|name=scope-and-need|question=should this be built at all and what is the smallest correct move
+S01|name=contracts-and-invariants|question=what exact contract invariant or special case must not be violated
+```
+
+Required fields:
+
+- id (`S00`-`S06`)
+- `name`
+- `question`
+
+Stage ids keep their numeric prefix because the number carries ordinal meaning. In the current profile, `S` entries live only in `packs/universal/pack.urf.md`.
+
+### `R` entries (under `## ROUTING`)
+
+Routing records point to leaf files and crossover targets:
+
+```text
+R01|leaf=foundations.urf.md|signals=smallest,stdlib,dependency,contract,test
+```
+
+Use `pack=` only when an index needs to hand off into another family index; the record shape stays the same.
+
+Required fields:
+
+- id (`R01`, `R02`, ...)
+- exactly one of `leaf` or `pack`
+- `signals`
+
+Conventions:
+
+- `signals` is a comma-separated list of short literal selectors
+- use concrete selectors, not sentence prose
+- keep each exact signal token unique within one family index surface
+- keep local leaf routes before cross-family routes when both exist
+- keep `R` numbering dense and ascending within one index surface unless a profile explicitly reserves another range
+
+### `L` entries (under `## LEAVES`)
+
+Leaf registry records stay small and human-readable:
+
+```text
+L01|file=foundations.urf.md|theme=scope-contracts
+```
+
+Required fields:
+
+- id (`L01`, `L02`, ...)
+- `file`
+- `theme`
+
+## ID Conventions
+
+K/X ids are unique across families by namespace prefix:
+
+- `UNI-K01`, `UNI-X01` for `universal`
+- `CPP-K17`, `CPP-X17` for `cpp-architecture`
+- `PY-K08`, `PY-X08` for `python-architecture`
+
+Conventions:
+
+- future families should choose a short stable namespace prefix when introduced
+- K/X mirror pairs should share the same numeric suffix
+- numeric suffixes should stay unique within a family
+- family prefixes should stay stable even when entries move between leaf files
+- `R` and `L` ids only need to stay unique within one index surface
+
+## Controlled Conventions
+
+- `stage` must be a base-10 integer from `0` to `6`
+- `scope` should be a short retrieval key, not a sentence
+- `signals` should use lowercase literal selectors separated by commas with no spaces
+- exact `signals` tokens must not repeat within one family index surface
+- `theme` should be a short stable label, not a paragraph
+- a given `scope` should normally appear once per family and may appear on up to 5 entries within one family when several facets need separate statements
+- prefer one distinct architectural theme per entry
+- use stable architectural nouns, not transient file or function names, unless those names define a durable boundary
+- keep guidance text concise and directly actionable
+- prefer one idea per line; if a line carries two independent norms, split it into two K/X pairs or move supporting detail into docs/examples
+
+## Referencing Entries
+
+When citing entries in summaries, audits, or reasoning, prefer `pack/scope`:
+
+```text
+universal/shared-invariant-extraction
+python-architecture/native-sync-async-paths
+cpp-architecture/raii-guard-ownership-move
+```
+
+Use K/X ids when compact pairing matters in discussion or review:
+
+```text
+CPP-K17 / CPP-X17
+```
+
+## Sections
+
+Leaf packs should be organized with these markdown headings:
+
+```text
+## KERNELS
+## EXCLUDES
+```
+
+Family indexes should be organized with these markdown headings:
+
+```text
+## ROUTING
+## LEAVES
+```
+
+The universal index additionally carries:
+
+```text
+## STAGES
+```
+
+`## STAGES` lives only in `packs/universal/pack.urf.md`.
+
+## Compatibility Notes
+
+- the first token on K/X lines is a bare id token, not a keyed field
+- unknown key-value pairs should be preserved by tooling
+- tooling must ignore blank lines and markdown comments
+- tooling may treat `pack.urf.md` as an index surface and leaf `*.urf.md` files as individually loadable packs
+- tooling may treat `## ROUTING` as the primary selection surface and `## LEAVES` as a compact registry
+- future fields may extend entries without changing the base separator format
+
+## Validation
+
+The repository ships with a zero-dependency validator:
+
+```text
+python scripts/pack_lint.py
+```
+
+It enforces exact signal uniqueness within each family index together with universal stage definitions, route targets, leaf registry references, K/X mirror numbering, and stage-sorted leaf ordering. It also emits warnings when a route signal drifts away from its target leaf.

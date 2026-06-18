@@ -1,0 +1,14 @@
+---
+description: Re-check code diffs against loaded pack kernels after edits
+alwaysApply: true
+---
+
+# Post-Change Kernel Audit
+
+After any code edit:
+
+- MUST re-read the relevant loaded leaf pack(s) before judging the result; do not rely on memory.
+- MUST inspect the actual diff against both `## KERNELS` and `## EXCLUDES` in the loaded leaves.
+- MUST verify that every selected or claimed kernel is demonstrably satisfied by the diff, and that no exclusion pattern from the loaded leaves was introduced.
+- MUST fix any mismatch immediately or report the violated entry by `pack/scope` and the exact trade-off explicitly.
+- MUST keep the audit honest: if a loaded kernel was not materially relevant, omit it from the summary instead of citing it aspirationally.

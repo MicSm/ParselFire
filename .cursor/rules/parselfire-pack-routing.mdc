@@ -1,0 +1,24 @@
+---
+description: Thin ParselFire pack-index activation
+alwaysApply: true
+---
+
+# ParselFire Pack Activation
+
+Before reading, editing, reviewing, or refactoring code:
+
+- Identify the implementation language and execution domain from the source itself.
+- Load `packs/universal/pack.urf.md`.
+- If the source is Python, also load `packs/python-architecture/pack.urf.md`.
+- If the source is C++, also load `packs/cpp-architecture/pack.urf.md`.
+- If the source is plain C, stay on the universal index only (no C pack exists yet).
+- For `.h` files: inspect content; load cpp-architecture only if C++ constructs are present.
+- Otherwise stay on the universal index only.
+- Use loaded pack indexes as the routing surface for leaf selection.
+- From `## ROUTING`, match `signals` against the active code context and read exactly one leaf per family (two only when the change truly crosses themes).
+
+After loading leaves:
+
+- Select 3-5 total K/X entries with stage-aligned preference.
+- Reference guidance by `pack/scope`; use namespaced ids only when compact pairing helps.
+- Never paste pack text verbatim into code or comments.
