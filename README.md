@@ -1,254 +1,168 @@
 # ParselFire
 
-ParselFire is a portable runtime surface and pack format for giving AI coding
-agents architectural guidance at the moment they make design decisions.
+Portable architectural guardrails for AI coding agents.
 
-On large or long-lived codebases, raw search and larger context windows are not
-enough. Agents still miss local invariants, flatten special cases, and drift
-away from the system's intended shape. ParselFire keeps that guidance small,
-explicit, inspectable, and loadable on demand.
+AI agents write code fast but forget your architecture between sessions. They
+duplicate logic you deliberately extracted, flatten special cases you preserved
+on purpose, and drift away from boundaries that took months to establish.
+Larger context windows do not fix this — they give the agent more text, not
+more understanding.
 
-This repository focuses on one practical layer of that problem:
+ParselFire is a small set of focused guidance files that activate only when
+relevant. Instead of one giant rules dump the agent ignores, it loads 3–5
+architectural constraints at the moment a design decision is being made —
+then audits the result against those same constraints after the edit.
 
-1. thin routing surfaces in `packs/*/pack.urf.md`
-2. dense leaf packs with the actual K/X guidance records
-3. local validation and evidence that keep the surfaces reviewable and
-   falsifiable
+## Evidence
 
-Viewed more broadly, ParselFire is a public step toward persistent
-architectural guidance for codebases: guidance that should survive across
-repeated agent sessions instead of being rediscovered from scratch each time.
+Tested on real open-source repositories, not toy examples:
 
-## Why This Exists
+| repo | change | result |
+|------|--------|--------|
+| **FastAPI** (75k stars) | collapsed duplicated auth parsing in `fastapi/security/http.py` | `+16 / -33`, 49 tests pass, no API change |
+| **LangChain** (100k stars) | extracted shared retry bookkeeping in `runnables/retry.py` | `+97 / -67`, 4 tests pass, sync/async boundary preserved |
 
-ParselFire is built for codebases where architecture matters more than one-file
-completion speed:
+In both cases, the agent avoided the mistakes it would normally make:
+no speculative abstractions, no flattened special cases, no merged sync/async
+paths.
 
-- long-lived repositories
-- repeated agent sessions against the same system
-- boundaries and lifecycle rules that should survive across tasks
-- guidance that should stay portable, reviewable, and usable with local
-  workflows
+Full write-ups with diffs, test output, and constraint traceability:
 
-Cursor remains the deepest exercised integration, but the pack format is plain
-markdown and the repository now ships a portable `AGENTS.md` contract plus thin
-adapters for instruction-file runtimes.
+- [before/after evidence (Python)](examples/before-after-python.md)
 
-## What ParselFire Is
+## How It Differs From `AGENTS.md`
 
-- a compact format for architectural guidance
-- a routed pack layout that keeps runtime reads smaller than repository storage
-- a local surface you can review, diff, validate, and sign
-- a public starter set of universal, Python, and C++ guidance packs
+`AGENTS.md` tells an agent how to work in your repository — build commands,
+test commands, code style, workflow conventions.
 
-## What ParselFire Is Not
+ParselFire teaches an agent what not to break — architectural boundaries,
+lifecycle invariants, domain-specific constraints that outlive any single task.
 
-- not a coding model
-- not a hosted service
-- not a giant always-on rules dump
-- not tied to one language family or one agent environment
+| | `AGENTS.md` | ParselFire |
+|--|-------------|------------|
+| scope | workflow and style | architectural boundaries |
+| loaded | everything, always | 3–5 relevant constraints per task |
+| portable | yes | yes — same packs work across 10+ agent hosts |
+| auditable | no | yes — post-edit diff check against loaded constraints |
 
-## What Ships In v0
+## Works With Your Agent
 
-- public format docs in [spec/kernel-schema.md](spec/kernel-schema.md) and
-  [spec/urf-profile-kernels.md](spec/urf-profile-kernels.md)
-- shipped pack families in `packs/universal/`, `packs/python-architecture/`,
-  and `packs/cpp-architecture/`
-- Cursor routing rules in `.cursor/rules/`
-- a canonical portable contract in `AGENTS.md`
-- thin instruction adapters in `.github/`, `.windsurf/`, `.clinerules/`,
-  `.kiro/`, and `.agents/`
-- a manifest-only Gemini / Antigravity adapter in `gemini-extension.json`
-- a zero-dependency validator in [scripts/pack_lint.py](scripts/pack_lint.py)
-- real before/after evidence in
-  [examples/before-after-python.md](examples/before-after-python.md)
-- a manual release marker in `VERSION`
-- signature scaffolding in [signatures/README.md](signatures/README.md)
+Pick whichever surface your host already reads:
 
-v0 stays deliberately small: routed public pack surfaces, local validation, and
-reproducible evidence. That keeps the repository usable today while leaving
-room for broader guidance coverage, stronger verification surfaces, and more
-runtime integrations over time.
+| host | file |
+|------|------|
+| Cursor | `.cursor/rules/` (routed, automatic) |
+| Claude Code | `CLAUDE.md` |
+| Codex, Aider, Zed, CodeWhale | `AGENTS.md` |
+| GitHub Copilot | `.github/copilot-instructions.md` |
+| Windsurf | `.windsurf/rules/parselfire.md` |
+| Cline | `.clinerules/parselfire.md` |
+| Kiro | `.kiro/steering/parselfire.md` |
+| Gemini CLI / Antigravity | `gemini-extension.json` |
 
-## Agent Portability
+All adapters point at the same underlying guidance. The architectural
+knowledge lives in `packs/`; the per-host files are thin delivery surfaces.
 
-ParselFire keeps semantic routing in `packs/` and ships thin delivery surfaces
-per host rather than separate routing logic for each runtime.
-
-- `Cursor`: native routed activation via `.cursor/rules/` plus the post-change
-  audit rule.
-- `Claude Code`: reads `CLAUDE.md` at the repo root as its native project
-  instruction file. Also supports `AGENTS.md`.
-- `AGENTS.md` hosts: `Codex`, `Aider`, `Zed`, `CodeWhale`, VS Code Codex
-  extension, and other AGENTS-compatible runtimes can load the canonical
-  contract from `AGENTS.md`.
-- Copy-based instruction hosts: `GitHub Copilot`, `Windsurf`, `Cline`, `Kiro`,
-  and `.agents/rules/` workspaces get host-specific files that mirror
-  `AGENTS.md`.
-- Manifest-only hosts: `Gemini CLI` / `Antigravity` can point at
-  `gemini-extension.json`, which in turn points at `AGENTS.md`.
-- Deferred: plugin, hook, slash-command, and MCP-specific integrations are
-  intentionally out of scope for this wave.
-
-If a host can read `AGENTS.md` directly, use that path. If it requires a
-host-specific filename, copy the matching thin adapter from this repository.
-
-## Pack Ecosystem
-
-ParselFire ships the open format, starter packs, and validation surfaces in
-this repository.
-
-Additional maintained packs for other languages, frameworks, and
-organization-specific workflows may be published separately under their own
-licenses, while continuing to follow the same public format.
-
-This keeps the core surface open and portable while allowing the pack
-ecosystem to grow beyond what is shipped here.
-
-## 5 Minutes To Working Routing
-
-The fastest way to try ParselFire is to use this repository as the workspace
-root and clone a target repository under `.repos/`.
+## Quick Start
 
 ```text
 git clone <parselfire-repo-url>
 cd parselfire
-git clone <target-repo-url> .repos/target
+git clone <your-project-url> .repos/target
 ```
 
-Cursor is still the easiest way to see automatic routed leaf loading end to
-end. For other hosts, start by copying one of these surfaces into the target
-repo:
+**Cursor** (automatic routing):
 
-- `CLAUDE.md` for Claude Code (its native project instruction file)
-- `AGENTS.md` for AGENTS-compatible hosts such as `Codex`
-- `.github/copilot-instructions.md` for GitHub Copilot
-- `.windsurf/rules/parselfire.md` for Windsurf
-- `.clinerules/parselfire.md` for Cline
-- `.kiro/steering/parselfire.md` for Kiro
-- `.agents/rules/parselfire.md` for workspaces that read `.agents/rules/`
-- `gemini-extension.json` for Gemini / Antigravity if the host supports a
-  context-file manifest; otherwise fall back to `AGENTS.md`
+1. Open `parselfire/` as the workspace root.
+2. Ask the agent to work inside `.repos/target/`.
+3. Rules load the relevant guidance automatically and audit the diff
+   after each edit.
 
-Then, for Cursor:
+**Other hosts**:
 
-1. Open `parselfire` in Cursor.
-2. Ask the agent to work inside `.repos/target/...`.
-3. Let the rules load the relevant pack surfaces automatically.
+1. Copy the matching file from the table above into your project.
+2. Put (or symlink) the `packs/` folder where the agent can read it.
+3. The instruction file tells the agent to load relevant packs before
+   writing code and re-check the diff afterward.
 
-For a typical Python task, the runtime flow is:
+## What Ships In v0
 
-1. `.cursor/rules/parselfire-pack-routing.mdc` loads
-   `packs/universal/pack.urf.md`.
-2. `.cursor/rules/parselfire-python-routing.mdc` adds
-   `packs/python-architecture/pack.urf.md`.
-3. The agent matches `signals=` in `## ROUTING` and reads one relevant leaf per
-   family.
-4. The agent selects a small set of K/X entries from those loaded leaves.
-5. `.cursor/rules/post-change-audit.mdc` forces a re-read of the loaded leaves
-   against the actual diff after editing.
+- **3 guidance families**: universal, Python, and C++ — covering lifecycle,
+  concurrency, shared abstractions, async boundaries, ownership, and more
+- **10+ host adapters**: thin instruction files for every major agent runtime
+- **Format specification**: [spec/kernel-schema.md](spec/kernel-schema.md) and
+  [spec/urf-profile-kernels.md](spec/urf-profile-kernels.md)
+- **Zero-dependency validator**: [scripts/pack_lint.py](scripts/pack_lint.py)
+  plus [scripts/check_adapter_copies.py](scripts/check_adapter_copies.py)
+  for adapter-drift detection
+- **Real evidence**: [examples/before-after-python.md](examples/before-after-python.md)
+- **Signature scaffolding**: [signatures/README.md](signatures/README.md)
 
-For C++ sources, `.cursor/rules/parselfire-cpp-routing.mdc` swaps in the
-portable C++ family instead of the Python family.
+v0 is deliberately small: focused guidance packs, local validation, and
+reproducible evidence. No dependencies, no hosted services, no API keys.
 
-## Runtime Model
+## How It Works Under The Hood
 
-ParselFire keeps runtime reads selective:
+Each guidance family has a thin index and several leaf files. The agent
+selects which leaf to read based on keyword signals in the current task
+context — file type, directory, domain hints.
 
-1. Load the family index surfaces relevant to the task.
-2. Follow `## ROUTING` into matching leaf files when needed.
-3. Work from a small relevant set of K/X entries rather than the whole
-   repository at once.
-4. Apply the guidance semantically rather than copying pack text into code.
+For a typical task, the agent reads:
 
-For many tasks this means:
+- one universal index + one matching universal leaf
+- zero or one language-family index + zero or one language leaf
+- total: 3–5 focused constraints, not the entire repository
 
-- `packs/universal/pack.urf.md`
-- one matching universal leaf
-- zero or one language-family index
-- zero or one matching language leaf
+After making an edit, the agent re-reads the loaded constraints and checks
+the diff against them. Mismatches are flagged immediately.
 
-This keeps reads focused while leaving the wider repository surface available
-when needed.
+This keeps the attention cost low while making the guidance falsifiable —
+every claimed constraint must be demonstrably satisfied by the actual diff.
 
 ## Repository Layout
 
 ```text
-AGENTS.md             Canonical portable instruction contract
-CLAUDE.md             Claude Code project instruction adapter
-.agents/              Generic workspace-rule adapter
-.clinerules/          Cline instruction adapter
-.cursor/rules/        Cursor activation and post-change audit rules
-.github/              GitHub Copilot instruction adapter and repo metadata
-.kiro/                Kiro steering adapter
-.repos/               Local target repositories to test ParselFire against
-.windsurf/            Windsurf instruction adapter
-examples/             Before/after evidence and related notes
-external/             Third-party pack contribution area
-gemini-extension.json Manifest-only AGENTS pointer for Gemini/Antigravity
-packs/                Family indexes plus leaf packs in URF-flavored markdown
-scripts/              Zero-dependency validation helpers
-signatures/           Signing docs and public-key/signature scaffolding
+packs/                Architectural guidance — family indexes + leaf files
+  universal/          Language-agnostic constraints (lifecycle, abstractions, ...)
+  python-architecture/  Python-specific (async boundaries, import structure, ...)
+  cpp-architecture/   C++ (ownership, concurrency, RAII patterns, ...)
+examples/             Before/after evidence from real refactors
 spec/                 Public format specification
-VERSION               Manual release version marker
+scripts/              Zero-dependency validators
+signatures/           Signing scaffolding and public keys
+external/             Third-party / community packs (contribution area)
+.cursor/rules/        Cursor-specific activation rules
+AGENTS.md             Portable instruction contract (canonical)
+CLAUDE.md             Claude Code adapter
+.github/              GitHub Copilot adapter
+.windsurf/            Windsurf adapter
+.clinerules/          Cline adapter
+.kiro/                Kiro adapter
+.agents/              Generic workspace-rule adapter
+gemini-extension.json Gemini / Antigravity manifest
+VERSION               Release marker
 ```
 
-## Proof
+## Validation
 
-The best starting point is the Python evidence doc:
-
-- [examples/before-after-python.md](examples/before-after-python.md)
-
-The evidence doc shows two real refactors against external open-source
-repositories with project-local test verification and diff-based review.
-
-## Validate Pack And Adapter Surfaces
-
-Run the local checks before committing pack-surface or portability-surface
-edits:
+Run before committing changes to guidance or adapter files:
 
 ```text
 python scripts/pack_lint.py
 python scripts/check_adapter_copies.py
 ```
 
-It checks:
+The first script validates guidance structure (numbering, ordering, cross-
+references). The second ensures all host adapters stay in sync with the
+canonical `AGENTS.md` contract.
 
-- exact `signals=` token uniqueness within each family index
-- universal `## STAGES` completeness and ordering
-- broken `R.leaf`, `R.pack`, and `L.file` references
-- family-wide K/X mirror numbering
-- stage-first, id-second ordering inside leaf sections
-- warning-level drift where route signals drift away from their target leaf
-  content
-- copy-based instruction adapters stay aligned with `AGENTS.md`
-- manifest-only adapters still point at `AGENTS.md` and the current `VERSION`
+## Contributing
 
-## Versioning For Now
+- Format rules: [spec/kernel-schema.md](spec/kernel-schema.md)
+- Contribution workflow: [CONTRIBUTING.md](CONTRIBUTING.md)
+- External pack expectations: [external/README.md](external/README.md)
+- Signing and verification: [signatures/README.md](signatures/README.md)
 
-ParselFire currently versions releases manually through the root `VERSION`
-file.
+## License
 
-When you cut a release or release candidate, bump `VERSION` first and then
-produce matching detached signatures for the shipped `*.urf.md` files.
-
-CI automation is intentionally deferred until after the initial OSS release.
-Until then, validation and release packaging stay local and explicit.
-
-## Contributing And Verification
-
-- Format and field rules live in
-  [spec/kernel-schema.md](spec/kernel-schema.md) and
-  [spec/urf-profile-kernels.md](spec/urf-profile-kernels.md).
-- Pack contribution workflow lives in [CONTRIBUTING.md](CONTRIBUTING.md).
-- External pack expectations live in [external/README.md](external/README.md).
-- Signature and key verification lives in [signatures/README.md](signatures/README.md).
-
-## Design Rules
-
-- Keep family indexes compact; move K/X density into leaf files.
-- Use namespaced ids such as `UNI-K03`, `CPP-K17`, and `PY-X08`.
-- Keep exact `signals=` tokens unique within one family index.
-- Keep one distinct idea per kernel line when possible.
-- Treat positive kernels and mirrored exclusions as first-class guidance.
-- Keep public pack surfaces self-contained, reviewable, and public-safe.
+MIT
