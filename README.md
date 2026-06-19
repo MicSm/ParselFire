@@ -30,8 +30,9 @@ completion speed:
 - guidance that should stay portable, reviewable, and usable with local
   workflows
 
-Current integration is Cursor-first, but the pack format is plain markdown and
-the surface is intentionally inspectable and runtime-agnostic.
+Cursor remains the deepest exercised integration, but the pack format is plain
+markdown and the repository now ships a portable `AGENTS.md` contract plus thin
+adapters for instruction-file runtimes.
 
 ## What ParselFire Is
 
@@ -54,6 +55,10 @@ the surface is intentionally inspectable and runtime-agnostic.
 - shipped pack families in `packs/universal/`, `packs/python-architecture/`,
   and `packs/cpp-architecture/`
 - Cursor routing rules in `.cursor/rules/`
+- a canonical portable contract in `AGENTS.md`
+- thin instruction adapters in `.github/`, `.windsurf/`, `.clinerules/`,
+  `.kiro/`, and `.agents/`
+- a manifest-only Gemini / Antigravity adapter in `gemini-extension.json`
 - a zero-dependency validator in [scripts/pack_lint.py](scripts/pack_lint.py)
 - real before/after evidence in
   [examples/before-after-python.md](examples/before-after-python.md)
@@ -64,6 +69,29 @@ v0 stays deliberately small: routed public pack surfaces, local validation, and
 reproducible evidence. That keeps the repository usable today while leaving
 room for broader guidance coverage, stronger verification surfaces, and more
 runtime integrations over time.
+
+## Agent Portability
+
+ParselFire keeps semantic routing in `packs/` and ships thin delivery surfaces
+per host rather than separate routing logic for each runtime.
+
+- `Cursor`: native routed activation via `.cursor/rules/` plus the post-change
+  audit rule.
+- `Claude Code`: reads `CLAUDE.md` at the repo root as its native project
+  instruction file. Also supports `AGENTS.md`.
+- `AGENTS.md` hosts: `Codex`, `Aider`, `Zed`, `CodeWhale`, VS Code Codex
+  extension, and other AGENTS-compatible runtimes can load the canonical
+  contract from `AGENTS.md`.
+- Copy-based instruction hosts: `GitHub Copilot`, `Windsurf`, `Cline`, `Kiro`,
+  and `.agents/rules/` workspaces get host-specific files that mirror
+  `AGENTS.md`.
+- Manifest-only hosts: `Gemini CLI` / `Antigravity` can point at
+  `gemini-extension.json`, which in turn points at `AGENTS.md`.
+- Deferred: plugin, hook, slash-command, and MCP-specific integrations are
+  intentionally out of scope for this wave.
+
+If a host can read `AGENTS.md` directly, use that path. If it requires a
+host-specific filename, copy the matching thin adapter from this repository.
 
 ## Pack Ecosystem
 
@@ -88,7 +116,21 @@ cd parselfire
 git clone <target-repo-url> .repos/target
 ```
 
-Then:
+Cursor is still the easiest way to see automatic routed leaf loading end to
+end. For other hosts, start by copying one of these surfaces into the target
+repo:
+
+- `CLAUDE.md` for Claude Code (its native project instruction file)
+- `AGENTS.md` for AGENTS-compatible hosts such as `Codex`
+- `.github/copilot-instructions.md` for GitHub Copilot
+- `.windsurf/rules/parselfire.md` for Windsurf
+- `.clinerules/parselfire.md` for Cline
+- `.kiro/steering/parselfire.md` for Kiro
+- `.agents/rules/parselfire.md` for workspaces that read `.agents/rules/`
+- `gemini-extension.json` for Gemini / Antigravity if the host supports a
+  context-file manifest; otherwise fall back to `AGENTS.md`
+
+Then, for Cursor:
 
 1. Open `parselfire` in Cursor.
 2. Ask the agent to work inside `.repos/target/...`.
@@ -132,15 +174,23 @@ when needed.
 ## Repository Layout
 
 ```text
-.cursor/rules/      Cursor activation and post-change audit rules
-.repos/             Local target repositories to test ParselFire against
-examples/           Before/after evidence and related notes
-external/           Third-party pack contribution area
-packs/              Family indexes plus leaf packs in URF-flavored markdown
-scripts/            Zero-dependency validation helpers
-signatures/         Signing docs and public-key/signature scaffolding
-spec/               Public format specification
-VERSION             Manual release version marker
+AGENTS.md             Canonical portable instruction contract
+CLAUDE.md             Claude Code project instruction adapter
+.agents/              Generic workspace-rule adapter
+.clinerules/          Cline instruction adapter
+.cursor/rules/        Cursor activation and post-change audit rules
+.github/              GitHub Copilot instruction adapter and repo metadata
+.kiro/                Kiro steering adapter
+.repos/               Local target repositories to test ParselFire against
+.windsurf/            Windsurf instruction adapter
+examples/             Before/after evidence and related notes
+external/             Third-party pack contribution area
+gemini-extension.json Manifest-only AGENTS pointer for Gemini/Antigravity
+packs/                Family indexes plus leaf packs in URF-flavored markdown
+scripts/              Zero-dependency validation helpers
+signatures/           Signing docs and public-key/signature scaffolding
+spec/                 Public format specification
+VERSION               Manual release version marker
 ```
 
 ## Proof
@@ -152,12 +202,14 @@ The best starting point is the Python evidence doc:
 The evidence doc shows two real refactors against external open-source
 repositories with project-local test verification and diff-based review.
 
-## Validate Pack Surfaces
+## Validate Pack And Adapter Surfaces
 
-Run the repository validator before committing pack-surface edits:
+Run the local checks before committing pack-surface or portability-surface
+edits:
 
 ```text
 python scripts/pack_lint.py
+python scripts/check_adapter_copies.py
 ```
 
 It checks:
@@ -169,6 +221,8 @@ It checks:
 - stage-first, id-second ordering inside leaf sections
 - warning-level drift where route signals drift away from their target leaf
   content
+- copy-based instruction adapters stay aligned with `AGENTS.md`
+- manifest-only adapters still point at `AGENTS.md` and the current `VERSION`
 
 ## Versioning For Now
 

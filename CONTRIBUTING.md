@@ -25,14 +25,18 @@ Not good fits:
 ## Core Repository Surfaces
 
 - `packs/` contains maintainer-shipped pack families and leaf packs.
+- `AGENTS.md` is the canonical portable instruction contract.
 - `external/` is reserved for third-party or community-maintained packs.
 - `spec/` defines the public record format and file shapes.
 - `signatures/` contains maintainer and contributor public verification keys.
+- thin host adapters live under `CLAUDE.md`, `.github/`, `.windsurf/`,
+  `.clinerules/`, `.kiro/`, `.agents/`, and `gemini-extension.json`
 
 Read these first:
 
 - `spec/kernel-schema.md`
 - `spec/urf-profile-kernels.md`
+- `AGENTS.md`
 - `external/README.md`
 - `signatures/README.md`
 
@@ -51,6 +55,20 @@ When changing files under `packs/`:
    names unless they define a durable boundary.
 7. Keep public packs portable. If a pattern is too domain-specific or too
    sensitive for the shipped core families, move it out of the core surface.
+
+## Editing Portable Adapters
+
+When changing `AGENTS.md`, `gemini-extension.json`, or host-specific adapter
+files:
+
+1. Treat `AGENTS.md` as the canonical instruction-tier source.
+2. Keep copy-based adapters byte-aligned with `AGENTS.md` except for
+   host-required wrapper text such as frontmatter.
+3. Keep manifest-only adapters as pure pointers to `AGENTS.md`; do not add
+   host-specific routing or hook logic there.
+4. Keep semantic routing knowledge in `packs/` and the shared portable contract
+   rather than diverging per host.
+5. Run `python scripts/check_adapter_copies.py` before opening a PR.
 
 ## Adding Or Changing Families
 
@@ -74,6 +92,7 @@ Run:
 
 ```text
 python scripts/pack_lint.py
+python scripts/check_adapter_copies.py
 ```
 
 The current validator checks the core `packs/` tree. If your contribution also
@@ -87,6 +106,8 @@ match the tracked repository.
 - CI automation is intentionally deferred until after the initial OSS release
 - until CI exists, run `python scripts/pack_lint.py` locally for pack-surface or
   validator changes
+- run `python scripts/check_adapter_copies.py` locally for `AGENTS.md`,
+  host-adapter, or manifest changes
 
 ## External Packs
 
@@ -110,8 +131,12 @@ Before submitting a PR, make sure:
 
 - the change matches the live routed-pack architecture
 - `python scripts/pack_lint.py` passes if you touched `packs/` or validator code
+- `python scripts/check_adapter_copies.py` passes if you touched `AGENTS.md`,
+  host adapters, or manifest surfaces
 - new routing signals stay unique inside the edited family
 - new K/X records are mirrored and stage-sorted
 - public docs do not describe superseded runtime paths as if they were active
+- public docs do not claim plugin, hook, or slash-command behavior that is not
+  actually implemented and manually exercised
 - any new shipped pack surfaces include or update their detached signatures when
   applicable
