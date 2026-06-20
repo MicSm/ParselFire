@@ -5,7 +5,7 @@ Portable Python runtime routing surface for native primitive selection, imports,
 ## ROUTING
 R01|leaf=runtime-bootstrap.urf.md|signals=import,bootstrap,serialize,global,entry,setup,borrowed
 R02|leaf=state-lifecycle.urf.md|signals=state,runtime,typed,reauth,tasklocal,cancellation,coordinator,refresh
-R03|leaf=async-surfaces.urf.md|signals=async,await,guard,lint,bridge,context,thread
+R03|leaf=async-surfaces.urf.md|signals=async,await,guard,lint,bridge,context,thread,concurrency,derived
 R04|leaf=boundaries-cleanup.urf.md|signals=payload,schema,protocol,sdk,cleanup,retire,extension,registry
 R05|leaf=native-primitives.urf.md|signals=cache,replace,memoize,wrappers,metadata,dunders,format,shadow
 

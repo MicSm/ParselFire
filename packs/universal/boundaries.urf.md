@@ -10,6 +10,7 @@ UNI-K39|stage=5|scope=standard-log-surface|kernel=when a subsystem becomes a fir
 UNI-K40|stage=5|scope=artifact-log-factory|kernel=when a coordinator launches per-item workers construct each worker logger at the coordinator boundary with shared formatting and a deterministic name derived from work identity so logs stay structured and discoverable
 UNI-K41|stage=5|scope=boundary-granular-logs|kernel=emit control-loop logs at the same boundary unit the loop actually refreshes or skips so each message names the concrete unit and avoids aggregate status noise
 UNI-K45|stage=5|scope=boundary-default-access-policy|kernel=when most entry points share one access policy enforce it once at the dispatch boundary and let exceptional entries opt out through explicit metadata instead of stacking the same policy guard on every entry point
+UNI-K50|stage=5|scope=versioned-state-migration|kernel=evolve persisted state through explicit versioned migrations that are idempotent and rerunnable so older data is upgraded before reuse rather than patched in place
 
 ## EXCLUDES
 UNI-X29|stage=5|scope=side-band-semantics|violation=do not bolt important behavior onto side channels when it should flow through real config transport cache or runtime-control boundaries
@@ -21,3 +22,4 @@ UNI-X39|stage=5|scope=bespoke-log-sidepath|violation=do not keep special log han
 UNI-X40|stage=5|scope=ad-hoc-worker-logging|violation=do not let child workers invent their own logger setup path conventions or formatting when the system needs consistent structured logs per work item
 UNI-X41|stage=5|scope=aggregate-refresh-noise|violation=do not log aggregate refresh activity without naming the boundary unit when operators need to tell which concrete inputs were checked skipped or updated
 UNI-X45|stage=5|scope=decorator-pileup-policy|violation=do not repeat the same access-policy guard across nearly every entry point and discover exceptions only by guard absence instead of giving the dispatch boundary an explicit opt-out surface
+UNI-X50|stage=5|scope=ad-hoc-schema-upgrade|violation=do not change persisted state schemas or serialization layouts in place and assume older data will upgrade itself or survive repeated runs without explicit versioned migration

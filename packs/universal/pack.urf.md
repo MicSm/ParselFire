@@ -13,10 +13,10 @@ S06|name=convergence-and-deletion|question=once the replacement model is proven 
 
 ## ROUTING
 R01|leaf=foundations.urf.md|signals=smallest,stdlib,dependency,contract,test
-R02|leaf=control-flow.urf.md|signals=special-case,outcome,retry,lookup,completion,clock
-R03|leaf=lifecycle.urf.md|signals=owner,lifecycle,publish,rebuild,transition,teardown
+R02|leaf=control-flow.urf.md|signals=special-case,outcome,retry,lookup,completion,clock,merge,timeout,continuation
+R03|leaf=lifecycle.urf.md|signals=owner,lifecycle,publish,rebuild,transition,teardown,recovery,failover,degrade
 R04|leaf=shared-abstractions.urf.md|signals=shared,extract,duplicate,trampoline,context,parameterize,hook,hierarchy
-R05|leaf=boundaries.urf.md|signals=boundary,capability,artifact,normalize,transport,plumbing,log,policy
+R05|leaf=boundaries.urf.md|signals=boundary,capability,artifact,normalize,transport,plumbing,log,policy,schema,migration,versioned
 R06|leaf=convergence.urf.md|signals=legacy,compat,shim,alias,retire,deprecate
 
 ## LEAVES
