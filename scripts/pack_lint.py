@@ -370,8 +370,7 @@ def lint_repo() -> int:
             continue
 
         family_ids: dict[str, Record] = {}
-        family_k_numbers: dict[int, Record] = {}
-        family_x_numbers: dict[int, Record] = {}
+        family_numbers: dict[str, dict[int, Record]] = {"K": {}, "X": {}}
         leaf_records_by_name: dict[str, list[Record]] = {}
 
         for leaf_name in sorted(actual_leaf_names):
@@ -388,26 +387,17 @@ def lint_repo() -> int:
                 family_ids=family_ids,
             )
 
-            for number, record in k_records.items():
-                previous = family_k_numbers.get(number)
-                if previous is not None:
-                    state.error(
-                        record.file_path,
-                        record.line_number,
-                        f"K suffix {number} already used in {previous.file_path.relative_to(ROOT)}:{previous.line_number}",
-                    )
-                else:
-                    family_k_numbers[number] = record
-            for number, record in x_records.items():
-                previous = family_x_numbers.get(number)
-                if previous is not None:
-                    state.error(
-                        record.file_path,
-                        record.line_number,
-                        f"X suffix {number} already used in {previous.file_path.relative_to(ROOT)}:{previous.line_number}",
-                    )
-                else:
-                    family_x_numbers[number] = record
+            for kind, section_records in (("K", k_records), ("X", x_records)):
+                for number, record in section_records.items():
+                    previous = family_numbers[kind].get(number)
+                    if previous is not None:
+                        state.error(
+                            record.file_path,
+                            record.line_number,
+                            f"{kind} suffix {number} already used in {previous.file_path.relative_to(ROOT)}:{previous.line_number}",
+                        )
+                    else:
+                        family_numbers[kind][number] = record
 
         warn_unanchored_route_signals(
             family_dir=family_dir,
@@ -417,14 +407,10 @@ def lint_repo() -> int:
             state=state,
         )
 
-        missing_x = sorted(set(family_k_numbers) - set(family_x_numbers))
-        missing_k = sorted(set(family_x_numbers) - set(family_k_numbers))
-        for number in missing_x:
-            record = family_k_numbers[number]
-            state.error(record.file_path, record.line_number, f"K suffix {number} has no mirrored X entry in family {family_dir.name!r}")
-        for number in missing_k:
-            record = family_x_numbers[number]
-            state.error(record.file_path, record.line_number, f"X suffix {number} has no mirrored K entry in family {family_dir.name!r}")
+        for kind, other_kind in (("K", "X"), ("X", "K")):
+            for number in sorted(set(family_numbers[kind]) - set(family_numbers[other_kind])):
+                record = family_numbers[kind][number]
+                state.error(record.file_path, record.line_number, f"{kind} suffix {number} has no mirrored {other_kind} entry in family {family_dir.name!r}")
 
     if state.warnings:
         print("Warnings:")
