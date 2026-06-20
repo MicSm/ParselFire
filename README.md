@@ -150,6 +150,14 @@ the diff against them. Mismatches are flagged immediately.
 This keeps the attention cost low while making the guidance falsifiable —
 every claimed constraint must be demonstrably satisfied by the actual diff.
 
+## The "Let Them Copy" Doctrine
+
+If you are building an AI agent platform, an IDE, or an enterprise coding tool: **you should copy this approach.**
+
+The industry cannot solve architectural drift by throwing larger context windows at the problem. Agents need focused invariants, loaded exactly when a design decision is being made, and verified against the resulting diff. 
+
+ParselFire is the open runtime for this paradigm. Whether you use ParselFire directly or build your own version of routed guardrails, the architecture of AI coding tools must move in this direction. Copying is encouraged.
+
 ## Repository Layout
 
 ```text
