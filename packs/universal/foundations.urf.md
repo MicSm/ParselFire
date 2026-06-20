@@ -11,6 +11,7 @@ UNI-K07|stage=1|scope=builder-domain-separation|kernel=separate same-width value
 UNI-K13|stage=1|scope=api-contract-verification|kernel=verify external API contracts against authoritative sources before integrating them
 UNI-K14|stage=1|scope=correctness-floor|kernel=preserve validation safety and explicitly requested behavior even while minimizing code
 UNI-K15|stage=1|scope=behavioral-test-contract|kernel=write tests against observable behavior and architectural intent
+UNI-K38|stage=1|scope=public-contract-audit|kernel=before changing a public interface map all caller and extension touchpoints and preserve or adapt every caller-visible contract facet including argument binding return shape side effects and override hooks
 
 ## EXCLUDES
 UNI-X01|stage=0|scope=premature-custom-code|violation=do not write new code when an existing primitive or standard mechanism already covers the need
@@ -23,3 +24,4 @@ UNI-X07|stage=1|scope=numeric-domain-conflation|violation=do not pass one semant
 UNI-X13|stage=1|scope=unverified-api-contract|violation=do not assume signatures calling conventions or completion semantics without checking authoritative documentation or runtime evidence
 UNI-X14|stage=1|scope=brevity-over-obligations|violation=do not save code by removing validation safety or explicitly requested behavior or by choosing a shorter but less correct path
 UNI-X15|stage=1|scope=implementation-coupled-tests|violation=do not anchor tests to incidental structure when the stable obligation is the touched behavior contract
+UNI-X38|stage=1|scope=unmapped-interface-swap|violation=do not replace a public interface with a new implementation based only on matching names or happy-path behavior while leaving positional calls return contracts side effects or override seams unmapped

@@ -10,6 +10,8 @@ UNI-K16|stage=2|scope=explicit-init-outcomes|kernel=model unavailable already-ac
 UNI-K17|stage=2|scope=typed-lookup-result|kernel=return a structured lookup result when not-found unchanged remapped and out-of-range are all meaningful outcomes
 UNI-K18|stage=2|scope=retry-terminal-separation|kernel=separate retryable continuation from terminal failure as distinct outcomes
 UNI-K19|stage=2|scope=success-first-loop|kernel=shape retry loops around an explicit success branch and normalize final output only after success actually happened
+UNI-K33|stage=2|scope=bounded-retry-hint|kernel=derive retry delays from live contention but cap the reported interval so burst debt or one slow holder cannot turn transient throttling into effectively permanent backoff
+UNI-K34|stage=2|scope=fresh-visibility-retry|kernel=when a read-then-write decision can lose a race against concurrent writers rerun the whole decision in a fresh transaction before treating a uniqueness conflict as terminal
 
 ## EXCLUDES
 UNI-X08|stage=1|scope=special-case-flattening|violation=do not flatten real special cases or protocol-specific branches into generic code that erases their distinct rules
@@ -21,3 +23,5 @@ UNI-X16|stage=2|scope=false-success-defaults|violation=do not report initializat
 UNI-X17|stage=2|scope=lookup-sentinel-collapse|violation=do not collapse distinct lookup outcomes into one bool null or numeric sentinel
 UNI-X18|stage=2|scope=generic-retry-collapse|violation=do not route transient retryable conditions and terminal failures through one generic retry path that erases the real outcome contract
 UNI-X19|stage=2|scope=interleaved-retry-flow|violation=do not mix success normalization retry continuation and terminal recovery into one undifferentiated control flow
+UNI-X33|stage=2|scope=unbounded-retry-hint|violation=do not let aggregate contention metrics emit unbounded retry delays that strand callers in excessive backoff after a brief burst or one long-running holder
+UNI-X34|stage=2|scope=stale-view-conflict-finalization|violation=do not classify a uniqueness conflict as final when the failing write was based on pre-commit reads that may be stale relative to concurrent writers

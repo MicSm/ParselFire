@@ -15,8 +15,9 @@ S06|name=convergence-and-deletion|question=once the replacement model is proven 
 R01|leaf=foundations.urf.md|signals=smallest,stdlib,dependency,contract,test
 R02|leaf=control-flow.urf.md|signals=special-case,outcome,retry,lookup,completion,clock
 R03|leaf=lifecycle.urf.md|signals=owner,lifecycle,publish,rebuild,transition,teardown
-R04|leaf=shared-abstractions.urf.md|signals=shared,extract,duplicate,trampoline,context,parameterize
-R05|leaf=boundaries.urf.md|signals=boundary,capability,artifact,normalize,transport,plumbing
+R04|leaf=shared-abstractions.urf.md|signals=shared,extract,duplicate,trampoline,context,parameterize,hook,hierarchy
+R05|leaf=boundaries.urf.md|signals=boundary,capability,artifact,normalize,transport,plumbing,log,policy
+R06|leaf=convergence.urf.md|signals=legacy,compat,shim,alias,retire,deprecate
 
 ## LEAVES
 L01|file=foundations.urf.md|theme=scope-contracts
@@ -24,3 +25,4 @@ L02|file=control-flow.urf.md|theme=control-flow-outcomes
 L03|file=lifecycle.urf.md|theme=ownership-lifecycle
 L04|file=shared-abstractions.urf.md|theme=shared-invariants
 L05|file=boundaries.urf.md|theme=boundaries-plumbing
+L06|file=convergence.urf.md|theme=convergence-deletion

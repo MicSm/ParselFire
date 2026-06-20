@@ -5,7 +5,7 @@ Portable C++ runtime routing surface for language mechanics, state modeling, con
 ## ROUTING
 R01|leaf=core.urf.md|signals=nodiscard,forward,pack,bool,assignment,ellipsis
 R02|leaf=contracts.urf.md|signals=contract,identity,width,accessor,encoding,fallback
-R03|leaf=state-modeling.urf.md|signals=result,callback,category,metadata,load,validation
+R03|leaf=state-modeling.urf.md|signals=result,callback,category,metadata,load,validation,probe,variant,equality
 R04|leaf=concurrency.urf.md|signals=barrier,memory,thread,stream,writer,ordering
 R05|leaf=lifecycle.urf.md|signals=raii,start,stop,teardown,publication,worker,transition,scratch
 R06|leaf=shared.urf.md|signals=wrapper,trait,helper,allocation,view,owned
