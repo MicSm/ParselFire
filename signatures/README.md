@@ -17,15 +17,20 @@ core families in `packs/`:
 - `packs/python-architecture/`
 - `packs/cpp-architecture/`
 
-Each signed file should have a neighboring detached signature with the same
-name plus `.sig`.
+Each signed core pack file should have a mirrored detached signature under
+`signatures/packs/` with the same relative path plus `.sig`.
+
+Example:
+
+- `packs/universal/pack.urf.md`
+- `signatures/packs/universal/pack.urf.md.sig`
 
 ## Release-Time Checklist
 
 1. Update the root `VERSION` file to the release or release-candidate number.
 2. Make sure the released `*.urf.md` contents are final.
-3. Create or refresh the detached `.sig` file beside each released `*.urf.md`
-   surface.
+3. Create or refresh the mirrored detached `.sig` file for each released
+   `*.urf.md` surface under `signatures/packs/`.
 4. Publish or update the matching public key under `signatures/pubkeys/`.
 
 ## Verify A Single File
@@ -33,21 +38,19 @@ name plus `.sig`.
 Once signatures exist:
 
 ```text
-gpg --verify packs/universal/pack.urf.md.sig packs/universal/pack.urf.md
+gpg --verify signatures/packs/universal/pack.urf.md.sig packs/universal/pack.urf.md
 ```
 
 ## Verify The Repository Surface
 
-For routine verification, check the public key first and then verify each
-shipped pack file against its detached signature.
+For routine verification from the repo root, use the helper script:
 
-On Windows PowerShell, a simple loop looks like:
-
-```powershell
-Get-ChildItem packs -Recurse -Filter *.urf.md | ForEach-Object {
-  gpg --verify "$($_.FullName).sig" $_.FullName
-}
+```text
+python scripts/pack_signatures.py verify --target-dir packs
 ```
+
+If you prefer raw `gpg`, verify the mirrored signature path under
+`signatures/packs/` that matches the pack file's relative path inside `packs/`.
 
 ## Automation Helper
 
@@ -60,12 +63,14 @@ python scripts/pack_signatures.py sign --key <fingerprint> --passphrase-file pat
 python scripts/pack_signatures.py sign --dry-run
 ```
 
-The helper scans `packs/` recursively for every `*.md` file and expects or
-writes a neighboring detached signature with the same filename plus `.sig`.
+The helper scans `packs/` recursively for every shipped `*.urf.md` file and
+expects or writes a mirrored detached signature under `signatures/packs/` with
+the same relative path plus `.sig`.
 
-For batch signing, supply the passphrase via `--passphrase-file` (reads first
+Signing requires a passphrase: supply it via `--passphrase-file` (reads first
 line) or `--passphrase` (less safe — visible in process list). The passphrase
-is fed to `gpg` in loopback mode so pinentry does not pop up once per file.
+is fed to `gpg` in loopback mode so the pinentry window does not pop up once per
+file.
 
 ## Contributor Requirements
 

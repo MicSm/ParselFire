@@ -66,6 +66,7 @@ UNI-X01|stage=0|scope=premature-custom-code|violation=do not write new code when
 - lines starting with `#` define section boundaries and are not records
 - lines starting with `<!--` or `-->` are comments and should be ignored
 - blank lines are ignored
+- code-fence delimiter lines (three backticks, optionally followed by a language tag) wrap record blocks for human-readable rendering and are ignored
 - record lines are split on `|`
 - the first token is `S00`, `SR01`, `R01`, `L01`, a directive such as `!PURPOSE`, or a bare K/X id such as `UNI-K01`
 - directive lines beginning with `!` are profile-defined control records and may include positional text segments after the id

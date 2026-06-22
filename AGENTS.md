@@ -84,18 +84,21 @@ When a task touches code:
      constructs
 3. Treat each loaded `pack.urf.md` as a routing index, not as the dense
    guidance body.
-4. From each loaded `## ROUTING`, match `signals=` against the active code
+4. Human-oriented `packs/**/README.md` guides are not part of the runtime
+   guidance surface. Load only pack indexes and the leaf files resolved from
+   those indexes.
+5. From each loaded `## ROUTING`, match `signals=` against the active code
    context to select your primary leaf per family.
-5. If your primary signal match is a late-stage refactoring leaf (S04-S06), you
+6. If your primary signal match is a late-stage refactoring leaf (S04-S06), you
    MUST ALSO load at least one early-stage correctness leaf (S01-S03) to serve
    as your rejection filter; pick it from `## LEAVES` by choosing a leaf whose
    `stages=` includes the early stage your code's mechanics touch.
-6. To cover a stage whose `refs=` ids are not in your loaded leaves, read
+7. To cover a stage whose `refs=` ids are not in your loaded leaves, read
    `## LEAVES` and load every leaf whose `stages=` includes that stage; resolve
    coverage from the index, not by searching the `packs/` directory.
-7. Consult X entries first at the current stage, then K entries, before
+8. Consult X entries first at the current stage, then K entries, before
    proceeding to later stages.
-8. Apply the guidance semantically. Never paste pack text verbatim into code or
+9. Apply the guidance semantically. Never paste pack text verbatim into code or
    comments.
 
 ## Pre-Flight Review

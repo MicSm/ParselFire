@@ -97,6 +97,8 @@ def parse_urf_file(path: Path, state: LintState) -> list[Record]:
         stripped = line.strip()
         if not stripped or stripped.startswith("<!--") or stripped == "-->":
             continue
+        if stripped.startswith("```"):
+            continue
         heading_match = HEADING_RE.match(stripped)
         if heading_match:
             current_section = heading_match.group("name")

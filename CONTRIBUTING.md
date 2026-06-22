@@ -28,7 +28,8 @@ Not good fits:
 - `AGENTS.md` is the canonical portable instruction contract.
 - `external/` is reserved for third-party or community-maintained packs.
 - `spec/` defines the public record format and file shapes.
-- `signatures/` contains maintainer and contributor public verification keys.
+- `signatures/` contains maintainer and contributor public verification keys
+  plus mirrored detached signatures for maintainer-shipped `packs/` surfaces.
 - thin host adapters live under `CLAUDE.md`, `.github/`, `.windsurf/`,
   `.clinerules/`, `.kiro/`, `.agents/`, and `gemini-extension.json`
 
@@ -61,8 +62,10 @@ When changing files under `packs/`:
 8. Keep public packs portable. If a pattern is too domain-specific or too
    sensitive for the shipped core families, move it out of the core surface.
 9. Treat pack index changes, matching public docs/spec updates, extractor
-   protocol updates, and detached signatures as one maintenance transaction when
-   stage refs change.
+   protocol updates, and mirrored detached signatures under
+   `signatures/packs/` as one maintenance transaction when stage refs change.
+10. `packs/**/README.md` files are human-readable guides only. Keep them concise
+    and helpful, but do not turn them into an additional runtime guidance layer.
 
 ## Editing Portable Adapters
 

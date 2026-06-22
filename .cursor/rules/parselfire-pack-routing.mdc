@@ -87,6 +87,7 @@ Before reading, editing, reviewing, or refactoring code:
 - For `.h` files: inspect content; load cpp-architecture only if C++ constructs are present.
 - Otherwise stay on the universal index only.
 - Use loaded pack indexes as the routing surface for leaf selection.
+- Human-oriented `packs/**/README.md` guides are not part of the runtime guidance surface. Load only pack indexes and the leaf files resolved from those indexes.
 - From `## ROUTING`, match `signals` against the active code context to select your primary leaf per family.
 - STAGE-WALK REQUIREMENT: You cannot safely perform late-stage refactoring (S04-S06) without an early-stage rejection filter. If your primary signal match is a late-stage leaf (for example, `shared-abstractions.urf.md`), you MUST ALSO load at least one early-stage correctness leaf (S01-S03); pick it from `## LEAVES` by choosing a leaf whose `stages=` includes the early stage your code's mechanics touch.
 - To cover a stage whose `refs=` ids are not in your loaded leaves, read `## LEAVES` and load every leaf whose `stages=` includes that stage; resolve coverage from the index, not by searching the `packs/` directory.
