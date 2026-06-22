@@ -249,6 +249,7 @@ the shared stage pipeline.
 - directive lines beginning with `!` are profile-defined control records rather than `key=value` entries
 - unknown key-value pairs should be preserved by tooling
 - tooling must ignore blank lines and markdown comments
+- tooling must ignore markdown code-fence delimiter lines (three backticks, optionally followed by a language tag) that wrap record blocks for human-readable rendering
 - tooling may treat `pack.urf.md` as an index surface and leaf `*.urf.md` files as individually loadable packs
 - tooling may treat `## ROUTING` as the primary selection surface, `## LEAVES` as a compact registry plus stage-to-leaf map, and `## STAGE-REFS` as the family-local augmentation of the universal stage walk
 - future fields may extend entries without changing the base separator format

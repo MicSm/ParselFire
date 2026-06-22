@@ -2,9 +2,9 @@
   <img src="logo.png" alt="ParselFire logo" width="200">
 </p>
 
-<h1 align="center">ParselFire</h1>
+<h1 align="center">ParselFire Project</h1>
 
-<p align="center">Portable architectural guardrails for AI coding agents.</p>
+<p align="center">Portable architectural guardrails for AI coding agents</p>
 
 <p align="center">
   <a href="#evidence">Evidence</a> •
@@ -24,6 +24,11 @@ relevant. Instead of one giant rules dump the agent ignores, it loads a small
 routed read set, walks architectural stages from S00 through S06, and checks
 earlier-stage correctness before later-stage cleanup or DRY work — then audits
 the result against those same constraints after the edit.
+
+> Early public discussion of this failure mode resonated not only with software
+> engineers, but also with AI-tooling and IP-oriented practitioners. That is a
+> useful signal that architectural drift is a real cross-discipline pain, not a
+> niche prompt-engineering complaint.
 
 ## Evidence
 
@@ -75,6 +80,19 @@ Pick whichever surface your host already reads:
 All adapters point at the same underlying guidance. The architectural
 knowledge lives in `packs/`; the per-host files are thin delivery surfaces.
 
+## Browse The Packs
+
+If you are inspecting ParselFire as a human, start with the guide surfaces:
+
+- [`packs/README.md`](packs/README.md)
+- [`packs/universal/README.md`](packs/universal/README.md)
+- [`packs/python-architecture/README.md`](packs/python-architecture/README.md)
+- [`packs/cpp-architecture/README.md`](packs/cpp-architecture/README.md)
+
+These guide files are for humans only. The runtime contract still loads only
+`pack.urf.md` indexes and the `*.urf.md` leaf files resolved from those
+indexes.
+
 ## Quick Start
 
 ```text
@@ -96,6 +114,21 @@ git clone <your-project-url> .repos/target
 2. Put (or symlink) the `packs/` folder where the agent can read it.
 3. The instruction file tells the agent to load relevant packs before writing
    code and re-audit the touched result afterward.
+
+### Test Drive Prompt
+
+Use this on a real module that has duplication plus at least one preserved
+special case. It is intentionally shaped like the kind of DRY request that
+often damages architecture:
+
+```text
+Refactor this module to be more DRY and remove redundant checks.
+
+Before editing, walk ParselFire stages S00-S06 in order.
+If this is an open-ended refactor, do a read-only Pass 1 audit first and build a findings ledger for each in-scope stage.
+Call out which invariants, lifecycle rules, boundary rules, or sync/async separations would be weakened by the refactor.
+Then apply only the safe rows one at a time, running the narrowest external check after each row.
+```
 
 ## Make The Effect Visible
 
@@ -189,14 +222,14 @@ ParselFire is the open runtime for this paradigm. Whether you use ParselFire dir
 ## Repository Layout
 
 ```text
-packs/                Architectural guidance — family indexes + leaf files
+packs/                Architectural guidance — family indexes, leaf files, guides
   universal/          Language-agnostic constraints (lifecycle, abstractions, ...)
   python-architecture/  Python-specific (async boundaries, import structure, ...)
   cpp-architecture/   C++ (ownership, concurrency, RAII patterns, ...)
 examples/             Before/after evidence from real refactors
 spec/                 Public format specification
 scripts/              Zero-dependency validators
-signatures/           Signing scaffolding and public keys
+signatures/           Signing scaffolding, public keys, mirrored pack signatures
 external/             Third-party / community packs (contribution area)
 .cursor/rules/        Cursor-specific activation rules
 AGENTS.md             Portable instruction contract (canonical)

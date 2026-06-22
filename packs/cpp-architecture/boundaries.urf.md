@@ -1,6 +1,8 @@
 # C++ Boundaries Leaf
 
 ## KERNELS
+
+```text
 CPP-K37|stage=5|scope=lto-cross-boundary-refs|kernel=when LTO can discard metadata-only or special-entrypoint symbols force explicit retention
 CPP-K38|stage=5|scope=canonical-platform-macro|kernel=drive conditional compilation from the platform's canonical version macro rather than a shadow project-local copy
 CPP-K39|stage=5|scope=domain-namespace-entry|kernel=replace vague legacy wrappers with domain-named namespaces and direct entrypoints
@@ -13,8 +15,11 @@ CPP-K45|stage=5|scope=local-global-identity|kernel=separate local instance ident
 CPP-K46|stage=5|scope=command-payload-serialization|kernel=serialize command arguments into length-delimited schema-owned payloads so commands can evolve independently
 CPP-K47|stage=5|scope=composable-stream-filters|kernel=build serialization and compression as composable filter stages reusable across files memory buffers and network sinks
 CPP-K48|stage=6|scope=redundant-build-target|kernel=once a support library is always part of a parent runtime merge it into the parent and delete the standalone target
+```
 
 ## EXCLUDES
+
+```text
 CPP-X37|stage=5|scope=lto-silent-elimination|violation=do not assume LTO will keep metadata-only or special-entrypoint symbols
 CPP-X38|stage=5|scope=shadow-version-macro|violation=do not drive platform-dependent compilation from a shadow project-local version macro that can drift from the actual target
 CPP-X39|stage=5|scope=legacy-wrapper-boundary|violation=do not hide subsystem boundaries behind vague legacy wrapper layers
@@ -27,3 +32,4 @@ CPP-X45|stage=5|scope=one-identity-for-all-contexts|violation=do not reuse one e
 CPP-X46|stage=5|scope=fixed-command-layout|violation=do not force every command through one fixed transport field layout or bolt extra meaning onto shared packet slots as schemas evolve
 CPP-X47|stage=5|scope=tempfile-bound-codecs|violation=do not hard-wire codecs to one file-based sink when composable filter stages can serve memory or network too
 CPP-X48|stage=6|scope=zombie-build-target|violation=do not leave a standalone build target after the code has converged into its parent runtime
+```

@@ -12,6 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_PACKS_DIR = ROOT / "packs"
+SIGNATURES_PACKS_DIR = ROOT / "signatures" / "packs"
 
 
 @dataclass(frozen=True)
@@ -27,7 +28,7 @@ def parse_args() -> argparse.Namespace:
         "--target-dir",
         type=Path,
         default=DEFAULT_PACKS_DIR,
-        help="Directory to scan recursively for *.md files (default: packs/).",
+        help="Directory to scan recursively for shipped *.urf.md files (default: packs/).",
     )
     common.add_argument(
         "--gpg-bin",
@@ -41,7 +42,7 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser = argparse.ArgumentParser(
-        description="Verify or refresh detached GPG signatures for pack markdown files."
+        description="Verify or refresh detached GPG signatures for shipped pack files."
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser(
@@ -89,11 +90,15 @@ def relative_path(path: Path) -> str:
 
 
 def iter_markdown_files(target_dir: Path) -> list[Path]:
-    return sorted(path for path in target_dir.rglob("*.md") if path.is_file())
+    return sorted(path for path in target_dir.rglob("*.urf.md") if path.is_file())
 
 
 def signature_path_for(file_path: Path) -> Path:
-    return file_path.with_name(f"{file_path.name}.sig")
+    try:
+        relative_to_packs = file_path.relative_to(DEFAULT_PACKS_DIR)
+    except ValueError:
+        return file_path.with_name(f"{file_path.name}.sig")
+    return SIGNATURES_PACKS_DIR / relative_to_packs.parent / f"{file_path.name}.sig"
 
 
 def ensure_gpg_available(gpg_bin: str) -> None:
@@ -190,6 +195,7 @@ def sign_file(
             f"would write {relative_path(sig_path)}",
         )
 
+    sig_path.parent.mkdir(parents=True, exist_ok=True)
     if temp_sig_path.exists():
         temp_sig_path.unlink()
 
@@ -323,7 +329,7 @@ def main() -> int:
 
     file_paths = iter_markdown_files(target_dir)
     if not file_paths:
-        print(f"No markdown files found under {target_dir}")
+        print(f"No shipped pack files found under {target_dir}")
         return 1
 
     if args.command == "verify":

@@ -1,6 +1,8 @@
 # Universal Control-Flow Leaf
 
 ## KERNELS
+
+```text
 UNI-K08|stage=1|scope=exceptional-path-retention|kernel=keep genuinely special or protocol-specific paths explicit when a generic handler would erase distinct state or sequencing rules
 UNI-K09|stage=1|scope=completion-marker|kernel=preserve stream or protocol completion semantics under partial failure by emitting an explicit terminator instead of treating silence as success
 UNI-K10|stage=1|scope=helper-surface-tightening|kernel=narrow related helper types and mutable surfaces when that makes a lifecycle or ownership invariant obvious without widening the change
@@ -16,8 +18,11 @@ UNI-K46|stage=2|scope=deterministic-concurrent-merge|kernel=when concurrent writ
 UNI-K47|stage=2|scope=retryable-timeout-type|kernel=represent retryable operational timeouts as a distinct failure type so retry policies can discriminate them from terminal failures without inspecting error messages
 UNI-K48|stage=2|scope=return-vs-continuation|kernel=when a unit of work persists continuation state separate the caller-visible result from the saved continuation state so callers and recovery logic operate on independent contracts
 UNI-K51|stage=2|scope=stable-retry-identity|kernel=when retrying a partial batch track each item by its original input identity and rebuild outputs from that stable mapping instead of indexing by position in the shrinking retry subset
+```
 
 ## EXCLUDES
+
+```text
 UNI-X08|stage=1|scope=special-case-flattening|violation=do not flatten real special cases or protocol-specific branches into generic code that erases their distinct rules
 UNI-X09|stage=1|scope=implicit-stream-end|violation=do not treat absence of further output as an implicit completion signal because partial failure then becomes indistinguishable from success
 UNI-X10|stage=1|scope=loose-helper-surface|violation=do not leave helper types and mutable surfaces broader than the real invariant when narrowing them would make the contract obvious
@@ -33,3 +38,4 @@ UNI-X46|stage=2|scope=order-dependent-concurrent-merge|violation=do not let conc
 UNI-X47|stage=2|scope=terminalized-timeout|violation=do not classify retryable operational timeouts under broad terminal failure hierarchies that retry policies cannot distinguish without inspecting error content
 UNI-X48|stage=2|scope=conflated-return-state|violation=do not use one object as both the caller-visible return value and the persisted continuation state
 UNI-X51|stage=2|scope=shrinking-retry-index|violation=do not track retry results by their position in the current shrinking attempt subset because position shifts as items succeed and the output ordering corrupts
+```
