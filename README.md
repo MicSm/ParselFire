@@ -38,14 +38,16 @@ Tested on real open-source repositories, not toy examples:
 |------|--------|--------|
 | **FastAPI** (75k stars) | collapsed duplicated auth parsing in `fastapi/security/http.py` | `+16 / -33`, 49 tests pass, no API change |
 | **LangChain** (100k stars) | extracted shared retry bookkeeping in `runnables/retry.py` | `+97 / -67`, 4 tests pass, sync/async boundary preserved |
+| **DuckDB** (39k stars) | safe cleanup of `parallel/pipeline_executor.cpp` | `+17 / -17`, parallel tests pass, interrupt-recovery paths preserved |
 
-In both cases, the agent avoided the mistakes it would normally make:
+Across these cases, the agent avoided the mistakes it would normally make:
 no speculative abstractions, no flattened special cases, no merged sync/async
-paths.
+paths, no collapsed interrupt-recovery paths.
 
 Full write-ups with diffs, test output, and constraint traceability:
 
 - [before/after evidence (Python)](examples/before-after-python.md)
+- [before/after evidence (C++)](examples/before-after-cpp.md)
 
 ## How It Differs From `AGENTS.md`
 
